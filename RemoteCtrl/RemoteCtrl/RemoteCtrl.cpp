@@ -6,7 +6,7 @@
 #include "RemoteCtrl.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
+#define new DEBUG_NEW 
 #endif
 
 
@@ -14,7 +14,7 @@
 
 CWinApp theApp;
 
-using namespace std;
+using namespace std; 
 
 int main()
 {
