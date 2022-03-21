@@ -8,7 +8,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW 
 #endif
-//12345678
+//1234567890
 
 // 唯一的应用程序对象  
 
