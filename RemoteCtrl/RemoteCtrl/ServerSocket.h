@@ -51,7 +51,7 @@ public:
 	}
 
 private: 
-	SOCKET m_client;
+	SOCKET m_client; 
 	SOCKET m_sock;
 	CServerSocket& operator=(const CServerSocket& ss) {}
 	CServerSocket(const CServerSocket& ss){
