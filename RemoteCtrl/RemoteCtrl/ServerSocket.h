@@ -50,8 +50,8 @@ public:
 		return send(m_client, pData, nSize, 0) > 0;
 	}
 
-private: 
-	SOCKET m_client; 
+private:
+	SOCKET m_client;
 	SOCKET m_sock;
 	CServerSocket& operator=(const CServerSocket& ss) {}
 	CServerSocket(const CServerSocket& ss){
@@ -60,7 +60,6 @@ private:
 	}
 	CServerSocket(){
 		m_client = INVALID_SOCKET;
-		std::cout << "abcd" << std::endl;
 		if (InitSockEnv() == FALSE) {
 			MessageBox(NULL, _T("无法初始化套接字环境,请检查网络设置!"), _T("初始化错误！"), MB_OK | MB_ICONERROR);
 			exit(0);
