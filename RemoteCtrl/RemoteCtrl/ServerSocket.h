@@ -50,7 +50,7 @@ public:
 		return send(m_client, pData, nSize, 0) > 0;
 	}
 
-private:
+private: 
 	SOCKET m_client;
 	SOCKET m_sock;
 	CServerSocket& operator=(const CServerSocket& ss) {}
