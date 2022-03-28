@@ -11,7 +11,7 @@ public:
 		return m_instance;
 	}
 
-	bool InitSocket() {
+	bool InitSocket() { 
 		if (m_sock == -1)return false;
 		sockaddr_in serv_adr;
 		memset(&serv_adr, 0, sizeof(serv_adr));
