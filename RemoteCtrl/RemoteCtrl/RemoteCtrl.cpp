@@ -30,7 +30,6 @@ void Dump(BYTE* pData, size_t nSize) {
     }
     strOut += "\n";
     OutputDebugStringA(strOut.c_str());
-
 }
 
 int MakeDriverInfo() {//1=>A 2=>B 3=>C ... 26=>Z
@@ -71,7 +70,7 @@ int MakeDirectoryInfo() {
         OutputDebugString(_T("当前的命令，不是获取文件列表，命令解析错误！"));
         return -1;
     }
-    if (_chdir(strPath.c_str())!=0) {
+    if (_chdir(strPath.c_str())!=0) {//_chdir函数更改当前工作目录,成功返回0
         FILEINFO finfo;
         finfo.IsInvalid = TRUE;
         finfo.IsDirectory = TRUE;
@@ -105,6 +104,44 @@ int MakeDirectoryInfo() {
     return 0;
 }
 
+int RunFile() {
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    ShellExecuteA(NULL, NULL, strPath.c_str(), NULL, NULL, SW_SHOWNORMAL);//相当于双击了文件一样
+    CPacket pack(3, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
+    return 0;
+}
+//#pragma warning(disalbe:4996) //fopen sprintf strcpy strstr
+int DownloadFile() {
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    long long data = 0;
+    FILE* pFile = NULL;
+    errno_t err=fopen_s(&pFile,strPath.c_str(), "rb");
+    if (err !=0) {
+        CPacket pack(4, (BYTE*)&data, 8);
+        CServerSocket::getInstance()->Send(pack);
+        return -1;
+    }
+    if (pFile !=NULL ) {
+        fseek(pFile, 0, SEEK_END);
+        data = _ftelli64(pFile);//得到文件的字节长度
+        CPacket head(4, (BYTE*)&data, 8);
+        fseek(pFile, 0, SEEK_SET);
+        char buffer[1024] = "";
+        size_t rlen = 0;
+        do {
+            rlen = fread(buffer, 1, 1024, pFile);
+            CPacket pack(4, (BYTE*)buffer, rlen);
+            CServerSocket::getInstance()->Send(pack);
+        } while (rlen >= 1024);
+        fclose(pFile);
+    }
+    CPacket pack(4, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
+    return 0;
+}
 int main()
 {
     int nRetCode = 0;
@@ -151,6 +188,12 @@ int main()
                 break;
             case 2://查看指定目录下的文件
                 MakeDirectoryInfo();
+                break;
+            case 3://打开文件
+                RunFile();
+                break;
+            case 4://下载文件
+                DownloadFile();
                 break;
             }
             
