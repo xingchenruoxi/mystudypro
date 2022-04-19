@@ -6,6 +6,7 @@
 #include "RemoteCtrl.h"
 #include"ServerSocket.h"
 #include<direct.h>
+#include<atlimage.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -233,6 +234,44 @@ int MouseEvent() {
     }
     return 0;
 }
+int sendScreen() 
+{
+    CImage screen;//GDI==显示设备的接口
+    HDC hScreen=::GetDC(NULL);//可以拿到设备的上下文==》就是设备的设置
+    int nBitPerPixel = GetDeviceCaps(hScreen, BITSPIXEL);
+    int nWidth = GetDeviceCaps(hScreen, HORZRES);
+    int nHeight = GetDeviceCaps(hScreen, VERTRES);
+    screen.Create(nWidth, nHeight, nBitPerPixel);
+    BitBlt(screen.GetDC(), 0, 0, 1920, 1020, hScreen, 0, 0, SRCCOPY);
+    ReleaseDC(NULL, hScreen);
+    HGLOBAL hMem=GlobalAlloc(GMEM_MOVEABLE, 0);
+    if (hMem == NULL)return -1;
+    IStream* pStream = NULL;
+    HRESULT ret= CreateStreamOnHGlobal(hMem, TRUE, &pStream);
+    if (ret == S_OK) {
+        screen.Save(pStream, Gdiplus::ImageFormatPNG);
+        LARGE_INTEGER bg { 0 };
+        pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+        PBYTE pData = (PBYTE)GlobalLock(hMem);
+        SIZE_T nSize = GlobalSize(hMem);
+        CPacket pack(6, pData, nSize);
+        CServerSocket::getInstance()->Send(pack);
+        GlobalUnlock(hMem);
+    }
+    //screen.Save(_T("test2020.png"), Gdiplus::ImageFormatPNG);
+    /*for (int i = 0; i < 10; i++) {
+        DWORD tick = GetTickCount64();
+        screen.Save(_T("test2020.png"), Gdiplus::ImageFormatPNG);
+        TRACE("png %d\r\n", GetTickCount64() - tick);
+        tick = GetTickCount64();
+        screen.Save(_T("test2020.jpg"), Gdiplus::ImageFormatJPEG);
+        TRACE("jpg %d\r\n", GetTickCount64() - tick);
+    }*/
+    pStream->Release();
+    GlobalFree(hMem);
+    screen.ReleaseDC();
+    return 0;
+}
 int main()
 {
     int nRetCode = 0;
@@ -272,7 +311,7 @@ int main()
                 int ret = pserver->DealCommand();
                 //TODO:
             }*/
-            int nCmd = 1;
+            int nCmd = 6;
             switch (nCmd) {
             case 1://查看磁盘分区
                 MakeDriverInfo();
@@ -289,6 +328,10 @@ int main()
             case 5:
                 MouseEvent();
                 break;
+            case 6://发送屏幕内容==>发送屏幕的截图
+                sendScreen();
+                break;
+
             }
             
         }
