@@ -272,6 +272,71 @@ int sendScreen()
     screen.ReleaseDC();
     return 0;
 }
+#include"LockDialog.h"
+CLockDialog dlg;
+unsigned threadid = 0;
+
+unsigned __stdcall threadLockDlg(void* arg) 
+{
+    TRACE("%s(%d):%d\r\n", __FUNCTION__, __LINE__, GetCurrentThreadId());
+    dlg.Create(IDD_DIALOG_INFO, NULL);
+    dlg.ShowWindow(SW_SHOW);
+    //遮蔽后台窗口
+    CRect rect;
+    rect.left = 0;
+    rect.top = 0;
+    rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
+    rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
+    rect.bottom *= 1.03;
+    TRACE("right=%d,bottom=%d\r\n", rect.right, rect.bottom);
+    dlg.MoveWindow(rect);
+    //窗口置顶
+    dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    //限制鼠标功能
+    ShowCursor(false);
+    //隐藏任务栏
+    ::ShowWindow(::FindWindow(_T("Shwll_TrayWnd"), NULL), SW_HIDE);
+    //dlg.GetWindowRect(rect);
+    rect.right = rect.left + 1;
+    rect.bottom = rect.top + 1;
+    ClipCursor(rect);//限制鼠标活动范围
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        if (msg.message == WM_KEYDOWN) {
+            TRACE("msg:%08X wparam:%08X lparam:%08X\r\n", msg.message, msg.wParam, msg.lParam);
+            if (msg.wParam == 0x41) {// a     按下ESC(1B)退出
+                break;
+            }
+        }
+    }
+    ShowCursor(true);
+    ::ShowWindow(::FindWindow(_T("Shwll_TrayWnd"), NULL), SW_SHOW);
+    dlg.DestroyWindow();
+    _endthreadex(0);
+    return 0;
+}
+int LockMachine() 
+{
+    if ((dlg.m_hWnd == NULL) || (dlg.m_hWnd == INVALID_HANDLE_VALUE)) {
+        //_beginthread(threadLockDlg, 0, NULL);
+        _beginthreadex(NULL, 0, threadLockDlg, NULL, 0, &threadid);//取得进程id
+        TRACE("threadid=%d\r\n", threadid);
+    }
+    CPacket pack(7, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
+    return 0;
+}
+int UnlockMachine() 
+{
+    //dlg.SendMessage(WM_KEYDOWN, 0x41, 0x001E0001);
+    //::SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x001E0001);这两个都无法发送数据到线程当中去,因为没有对应的线程
+    PostThreadMessage(threadid, WM_KEYDOWN, 0x41, 0);//对指定线程进行发送数据
+    CPacket pack(7, NULL, 0);
+    CServerSocket::getInstance()->Send(pack);
+    return 0;
+}
 int main()
 {
     int nRetCode = 0;
@@ -311,7 +376,7 @@ int main()
                 int ret = pserver->DealCommand();
                 //TODO:
             }*/
-            int nCmd = 6;
+            int nCmd = 7;
             switch (nCmd) {
             case 1://查看磁盘分区
                 MakeDriverInfo();
@@ -331,9 +396,21 @@ int main()
             case 6://发送屏幕内容==>发送屏幕的截图
                 sendScreen();
                 break;
-
+            case 7://锁机
+                LockMachine();
+                /*Sleep(50);
+                LockMachine();*/
+                break;
+            case 8:
+                UnlockMachine();
+                break;
             }
-            
+            Sleep(5000);
+            UnlockMachine();
+            TRACE("m_hWnd=%08X\r\n", dlg.m_hWnd);
+            while (dlg.m_hWnd != NULL) {
+                Sleep(10);
+            }
         }
 
     }
