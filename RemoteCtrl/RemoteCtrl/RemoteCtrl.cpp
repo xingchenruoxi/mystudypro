@@ -401,7 +401,7 @@ int main()
                 /*Sleep(50);
                 LockMachine();*/
                 break;
-            case 8:
+            case 8://解锁
                 UnlockMachine();
                 break;
             }
