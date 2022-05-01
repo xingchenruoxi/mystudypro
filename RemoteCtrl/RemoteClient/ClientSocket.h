@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "framework.h"
 #include <string>
+#include <vector>
 
 #pragma pack(push)
 #pragma pack(1)
@@ -117,19 +118,7 @@ typedef struct MouseEvent {
 	POINT ptXY;//坐标
 }MOUSEEV, PMOUSEEV;
 
-std::string GetErrorInfo(INT wsaErrCode) {
-	std::string ret;
-	LPVOID lpMsgBuf = NULL;
-	FormatMessage(
-		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-		NULL,
-		wsaErrCode,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);//把错误码进行格式化的函数
-	ret = (char*)lpMsgBuf;
-	LocalFree(lpMsgBuf);
-	return ret;
-}
+extern std::string GetErrorInfo(int);
 
 class CClientSocket
 {
@@ -142,6 +131,10 @@ public:
 	}
 
 	bool InitSocket(const std::string& strIPAddress) {
+		if (m_sock != INVALID_SOCKET) {
+			CloseSocket();
+		}
+		m_sock = socket(PF_INET, SOCK_STREAM, 0);
 		if (m_sock == -1)return false;
 		sockaddr_in serv_adr;
 		memset(&serv_adr, 0, sizeof(serv_adr));
@@ -165,7 +158,8 @@ public:
 	int DealCommand() {
 		if (m_sock == -1)return -1;
 		//char buffer[1024] = "";
-		char* buffer = new char[BUFFER_SIZE];
+		char* buffer = m_buffer.data();
+		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true) {
 			size_t len = recv(m_sock, buffer + index, BUFFER_SIZE - index, 0);
@@ -194,6 +188,7 @@ public:
 		return send(m_sock, pData, nSize, 0) > 0;
 	}
 	bool Send(CPacket& pack) {
+		TRACE("m_sock=%d\r\n", m_sock);
 		if (m_sock == -1)return false;
 		return send(m_sock, pack.Data(), pack.Size(), 0) > 0;
 	}
@@ -211,7 +206,15 @@ public:
 		}
 		return false;
 	}
+	CPacket& GetPacket() {
+		return m_packet;
+	}
+	void CloseSocket() {
+		closesocket(m_sock);
+		m_sock = INVALID_SOCKET;
+	}
 private:
+	std::vector<char> m_buffer;
 	SOCKET m_sock;
 	CPacket m_packet;
 	CClientSocket& operator=(const CClientSocket& ss) {}
@@ -223,7 +226,7 @@ private:
 			MessageBox(NULL, _T("无法初始化套接字环境,请检查网络设置!"), _T("初始化错误！"), MB_OK | MB_ICONERROR);
 			exit(0);
 		}
-		m_sock = socket(PF_INET, SOCK_STREAM, 0);
+		m_buffer.resize(BUFFER_SIZE);
 	}
 	~CClientSocket() {
 		closesocket(m_sock);
@@ -240,6 +243,7 @@ private:
 		if (m_instance != NULL) {
 			CClientSocket* tmp = m_instance;
 			m_instance = NULL;
+			delete tmp;
 		}
 	}
 	static CClientSocket* m_instance;

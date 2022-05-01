@@ -34,7 +34,7 @@ public:
 	CPacket(const BYTE* pData, size_t& nSize) {
 		size_t i = 0;
 		for (; i < nSize; i++) {
-			if(*(WORD*)(pData+i)==0xFEFF){
+			if(( * (WORD*)(pData + i)) == 0xFEFF) {
 				sHead = *(WORD*)(pData + i);
 				i += 2;//目的是跳过包头，包头是WORD类型
 				break;
@@ -140,23 +140,34 @@ public:
 		return true;
 	}
 	bool AcceptClient() {
+		TRACE("enter AcceptClient\r\n");
 		sockaddr_in client_adr;
 		int cli_sz = sizeof(client_adr);
 		m_client = accept(m_sock, (sockaddr*)&client_adr, &cli_sz);
+		TRACE("m_client=%d\r\n", m_client);
 		if (m_client == -1)return false;
 		return true;
 	}
 #define BUFFER_SIZE 4096
 	int DealCommand() {
+		TRACE("enter DealCommand!!\r\n");
 		if (m_client == -1)return -1;
 		//char buffer[1024] = "";
 		char* buffer = new char[BUFFER_SIZE];
+		if (buffer == NULL) {
+			TRACE("内存不足！！\r\n");
+			delete[]buffer;
+			return -2;
+		}
+		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true) {
 			size_t len = recv(m_client,buffer+index, BUFFER_SIZE -index,0);
 			if (len <= 0) {
+				delete[]buffer;
 				return -1;
 			}
+			TRACE("recv %d\r\n", len);
 			index += len;
 			len = index;
 			m_packet=CPacket((BYTE*)buffer, len);
@@ -169,9 +180,11 @@ public:
 				* n -- 要被复制的字节数。
 				*/
 				index -= len;
+				delete[]buffer;
 				return m_packet.sCmd;
 			}
 		}
+		delete[]buffer;
 		return -1;
 	}
 	bool Send(const char* pData,int nSize) {
@@ -195,6 +208,13 @@ public:
 			return true;
 		}
 		return false;
+	}
+	CPacket& GetPacket() {
+		return m_packet;
+	}
+	void CloseClient() {
+		closesocket(m_client);
+		m_client = INVALID_SOCKET;
 	}
 private:
 	SOCKET m_client;
@@ -228,6 +248,7 @@ private:
 		if (m_instance != NULL) {
 			CServerSocket* tmp = m_instance;
 			m_instance = NULL;
+			delete tmp;
 		}
 	}
 	static CServerSocket* m_instance;
