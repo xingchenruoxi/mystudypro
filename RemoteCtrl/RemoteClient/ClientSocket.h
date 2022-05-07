@@ -206,6 +206,7 @@ public:
 		TRACE("m_sock=%d\r\n", m_sock);
 		if (m_sock == -1)return false;
 		return send(m_sock, pack.Data(), pack.Size(), 0) > 0;
+
 	}
 	bool GetFilePath(std::string& strPath) {
 		if ((m_packet.sCmd >= 2) && (m_packet.sCmd <= 4)) {
