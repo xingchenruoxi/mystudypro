@@ -116,6 +116,7 @@ int DownloadFile() {
         fseek(pFile, 0, SEEK_END);
         data = _ftelli64(pFile);//得到文件的字节长度
         CPacket head(4, (BYTE*)&data, 8);
+        CServerSocket::getInstance()->Send(head);
         fseek(pFile, 0, SEEK_SET);
         char buffer[1024] = "";
         size_t rlen = 0;
