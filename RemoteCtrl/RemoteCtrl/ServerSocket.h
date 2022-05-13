@@ -213,7 +213,9 @@ public:
 	}
 	bool GetFilePath(std::string& strPath) {
 		TRACE("%s\r\n", m_packet.strData.data());
-		if ((m_packet.sCmd >= 2) && (m_packet.sCmd <= 4)) {
+		if (((m_packet.sCmd >= 2) && (m_packet.sCmd <= 4)) || 
+			(m_packet.sCmd == 9)) 
+		{
 			strPath = m_packet.strData;
 			return true;
 		}

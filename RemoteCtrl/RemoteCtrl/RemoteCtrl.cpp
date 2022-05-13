@@ -335,6 +335,22 @@ int TestConnect()
     return 0;
 }
 
+int DeleteLoadFile() 
+{
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    TCHAR sPath[MAX_PATH] = _T("");
+    //mbstowcs(sPath, strPath.c_str(), strPath.size());//宽字符集转化为多字节字符集(但是中文容易乱码)
+    MultiByteToWideChar(CP_ACP, 0,
+        strPath.c_str(), strPath.size(), sPath,
+        sizeof(sPath) / sizeof(TCHAR));//编码之间的转化
+    DeleteFileA(strPath.c_str());
+    CPacket pack(9, NULL, 0);
+    bool ret = CServerSocket::getInstance()->Send(pack);
+    TRACE("Send ret=%d\r\n", ret);
+    return 0;
+}
+
 int ExcuteCommand(int nCmd)
 {
     int ret = 0;
@@ -351,7 +367,7 @@ int ExcuteCommand(int nCmd)
     case 4://下载文件
         ret = DownloadFile();
         break;
-    case 5:
+    case 5://鼠标操作
         ret = MouseEvent();
         break;
     case 6://发送屏幕内容==>发送屏幕的截图
@@ -364,6 +380,9 @@ int ExcuteCommand(int nCmd)
         break;
     case 8://解锁
         ret = UnlockMachine();
+        break;
+    case 9://删除文件
+        ret = DeleteLoadFile();
         break;
     case 1981:
         ret = TestConnect();
