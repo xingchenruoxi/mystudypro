@@ -390,7 +390,7 @@ void CRemoteClientDlg::OnDownloadFile()
 		} while (false);
 		fclose(pFile);
 		pClient->CloseSocket();
-	}
+	}//TODO:大文件的传输需要额外的处理
 }
 
 void CRemoteClientDlg::OnDeleteFile()

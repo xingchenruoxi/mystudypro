@@ -174,11 +174,10 @@ public:
 		if (m_sock == -1)return -1;
 		//char buffer[1024] = "";
 		char* buffer = m_buffer.data();
-		memset(buffer, 0, BUFFER_SIZE);
-		size_t index = 0;
+		static size_t index = 0;
 		while (true) {
 			size_t len = recv(m_sock, buffer + index, BUFFER_SIZE - index, 0);
-			if (len <= 0) {
+			if ((len <= 0)&&(index == 0)) {
 				return -1;
 			}
 			index += len;
@@ -243,6 +242,7 @@ private:
 			exit(0);
 		}
 		m_buffer.resize(BUFFER_SIZE);
+		memset(m_buffer.data(), 0, BUFFER_SIZE);
 	}
 	~CClientSocket() {
 		closesocket(m_sock);
