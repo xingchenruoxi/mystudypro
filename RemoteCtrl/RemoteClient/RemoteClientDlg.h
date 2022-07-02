@@ -10,7 +10,7 @@
 // CRemoteClientDlg 对话框
 class CRemoteClientDlg : public CDialogEx
 {
-// 构造
+	// 构造
 public:
 	CRemoteClientDlg(CWnd* pParent = nullptr);	// 标准构造函数
 
@@ -28,6 +28,9 @@ public:
 	}
 	CImage& getImage() {
 		return m_image;
+	}
+	void SetImageStatus(bool isFull = false) {
+		m_isFull = isFull;
 	}
 private:
 	CImage m_image;//缓存

@@ -47,7 +47,7 @@ public:
 			nSize = 0;
 			return;
 		}
-		nLength = *(WORD*)(pData + i); i += 4;
+		nLength = *(DWORD*)(pData + i); i += 4;
 		if (nLength + i > nSize) {//包未完全接收到，就返回，解析失败
 			nSize = 0;
 			return;
@@ -68,7 +68,7 @@ public:
 			nSize = i;//head2 length4 data...
 			return;
 		}
-		nSize = 0;
+		//nSize = 0;
 	}
 	~CPacket() {}
 	CPacket& operator=(const CPacket& pack) {
@@ -169,7 +169,7 @@ public:
 		return true;
 	}
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 2048000
 	int DealCommand() {
 		if (m_sock == -1)return -1;
 		//char buffer[1024] = "";
