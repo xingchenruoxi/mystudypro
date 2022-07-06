@@ -274,11 +274,21 @@ unsigned __stdcall threadLockDlg(void* arg)
     CRect rect;
     rect.left = 0;
     rect.top = 0;
-    rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
+    rect.right = GetSystemMetrics(SM_CXFULLSCREEN);//w1
     rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
-    rect.bottom = (LONG)(rect.bottom * 1.03);
+    rect.bottom = (LONG)(rect.bottom * 1.10);
     TRACE("right=%d,bottom=%d\r\n", rect.right, rect.bottom);
     dlg.MoveWindow(rect);
+    CWnd* pText = dlg.GetDlgItem(IDC_STATIC);
+    if (pText) {
+        CRect rtText;
+        pText->GetWindowRect(rtText);
+        int nWidth = rtText.Width();//w0
+        int x = (rect.right - nWidth) / 2;
+        int nHeight = rtText.Height();
+        int y = (rect.bottom - nHeight) / 2;
+        pText->MoveWindow(x, y, rtText.Width(), rect.Height());
+    }
     //窗口置顶
     dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
     //限制鼠标功能
@@ -300,7 +310,10 @@ unsigned __stdcall threadLockDlg(void* arg)
             }
         }
     }
+    ClipCursor(NULL);
+    //恢复鼠标
     ShowCursor(true);
+    //恢复任务栏
     ::ShowWindow(::FindWindow(_T("Shwll_TrayWnd"), NULL), SW_SHOW);
     dlg.DestroyWindow();
     _endthreadex(0);
@@ -322,7 +335,7 @@ int UnlockMachine()
     //dlg.SendMessage(WM_KEYDOWN, 0x41, 0x001E0001);
     //::SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x001E0001);这两个都无法发送数据到线程当中去,因为没有对应的线程
     PostThreadMessage(threadid, WM_KEYDOWN, 0x41, 0);//对指定线程进行发送数据
-    CPacket pack(7, NULL, 0);
+    CPacket pack(8, NULL, 0);
     CServerSocket::getInstance()->Send(pack);
     return 0;
 }
