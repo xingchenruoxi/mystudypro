@@ -1,7 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "framework.h"
-void Dump(BYTE* pData, size_t nSize);
+#include "Tool.h"
+//void Dump(BYTE* pData, size_t nSize);
 #pragma pack(push)
 #pragma pack(1)
 class CPacket
@@ -207,7 +208,7 @@ public:
 	}
 	bool Send(CPacket& pack) {
 		if (m_client == -1)return false;
-		Dump((BYTE*)pack.Data(), pack.Size());
+		CTool::Dump((BYTE*)pack.Data(), pack.Size());
 		//Sleep(1);
 		return send(m_client,pack.Data(), pack.Size(), 0) > 0;
 	}
