@@ -77,20 +77,15 @@ void CWatchDialog::OnTimer(UINT_PTR nIDEvent)
 		if (m_isFull) {
 			CRect rect;
 			m_picture.GetWindowRect(rect); //获取 CWnd 的屏幕坐标
-			CImage image;
-			pParent->GetImage(image);
-			if (m_nObjWidth == -1) {
-				m_nObjWidth = image.GetWidth();
-			}
-			if (m_nObjHeight == -1) {
-				m_nObjHeight = image.GetHeight();
-			}
+			m_nObjWidth = m_image.GetWidth();
+			m_nObjHeight = m_image.GetHeight();
 			TRACE("%d,%d\r\n", rect.Width(), rect.Height());
-			bool a= image.StretchBlt(m_picture.GetDC()->GetSafeHdc(),
+			bool a= m_image.StretchBlt(m_picture.GetDC()->GetSafeHdc(),
 				0, 0,rect.Width(), rect.Height(), SRCCOPY);
 			m_picture.InvalidateRect(NULL);//通过将给定矩形添加到当前更新区域，使该矩形内的工作区无效
-			image.Destroy();
+			m_image.Destroy();
 			m_isFull = false;
+			TRACE("更新图片完成 %d %d %08x\r\n", m_nObjWidth, m_nObjWidth, (HBITMAP)m_image);
 		}
 	}
 	CDialog::OnTimer(nIDEvent);
