@@ -63,7 +63,7 @@ int CClientController::SendCommandPacket(
 	std::list<CPacket> lstPacks;//应答结果包
 	if (plstPacks == NULL)
 		plstPacks = &lstPacks;
-	pClient->SendPacket(CPacket(nCmd, pData, nLength, hEvent), *plstPacks);
+	pClient->SendPacket(CPacket(nCmd, pData, nLength, hEvent), *plstPacks, bAutoClose);
 	CloseHandle(hEvent);//回收事件句柄，反正资源耗尽
 	if (plstPacks->size() > 0) {
 		return plstPacks->front().sCmd;
@@ -94,7 +94,7 @@ int CClientController::DownFile(CString strPath) {
 void CClientController::StartWatchScreen()
 {
 	m_isClosed = false;
-	m_watchDlg.SetParent(&m_remoteDlg);
+	//m_watchDlg.SetParent(&m_remoteDlg);???
 	m_hThreadWatch = (HANDLE)_beginthread(&CClientController::threadWatchScreen, 0, this);
 	m_watchDlg.DoModal();
 	m_isClosed = true;
