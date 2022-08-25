@@ -43,8 +43,13 @@ public:
 	// 7 锁机
 	// 8 解锁
 	// 1981 测试连接
-	//返回值：是命令号，如果小于0则是错误
-	int SendCommandPacket(int nCmd, bool bAutoClose = true, BYTE* pData = NULL, size_t nLength = 0, std::list<CPacket>* plstPacks = NULL);
+	//返回值：是状态,true是成功 false是失败
+	bool SendCommandPacket(
+		HWND hWnd,//数据包收到后，需要应答的窗口
+		int nCmd, 
+		bool bAutoClose = true, 
+		BYTE* pData = NULL, 
+		size_t nLength = 0);
 	int GetImage(CImage& image) {
 		CClientSocket* pClient = CClientSocket::getInstance();
 		return CTool::Bytes2Image(image, pClient->GetPacket().strData);
