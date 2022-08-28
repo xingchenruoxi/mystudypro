@@ -341,7 +341,6 @@ void CRemoteClientDlg::OnRunFile()
 	}
 }
 
-
 void CRemoteClientDlg::OnBnClickedBtnStartWatch()
 {
 	CClientController::getInstance()->StartWatchScreen();

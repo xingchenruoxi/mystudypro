@@ -104,26 +104,28 @@ LRESULT CWatchDialog::OnSendPackAck(WPARAM wParam, LPARAM lParam)
 	else{
 		CPacket* pPacket = (CPacket*)wParam;
 		if (pPacket != NULL) {
-			switch (pPacket->sCmd)
+			CPacket head = *(CPacket*)wParam;
+			delete (CPacket*)wParam;
+			switch (head.sCmd)
 			{
 			case 6:
 			{
-				if (m_isFull) {
-					CTool::Bytes2Image(m_image, pPacket->strData);
-					CRect rect;
-					m_picture.GetWindowRect(rect);
-					m_nObjWidth = m_image.GetWidth();
-					m_nObjHeight = m_image.GetHeight();
-					TRACE("%d,%d\r\n", rect.Width(), rect.Height());
-					bool a = m_image.StretchBlt(m_picture.GetDC()->GetSafeHdc(),
-						0, 0, rect.Width(), rect.Height(), SRCCOPY);
-					m_picture.InvalidateRect(NULL);
-					m_image.Destroy();
-					m_isFull = false;
-				}
+				CTool::Bytes2Image(m_image, head.strData);
+				CRect rect;
+				m_picture.GetWindowRect(rect);
+				m_nObjWidth = m_image.GetWidth();
+				m_nObjHeight = m_image.GetHeight();
+				TRACE("%d,%d\r\n", rect.Width(), rect.Height());
+				bool a = m_image.StretchBlt(m_picture.GetDC()->GetSafeHdc(),
+					0, 0, rect.Width(), rect.Height(), SRCCOPY);
+				m_picture.InvalidateRect(NULL);
+				m_image.Destroy();
+				m_isFull = false;
 				break;
 			}
 			case 5:
+				TRACE("远程端应答了鼠标操作！\r\n");
+				break;
 			case 7:
 			case 8:
 			default:
