@@ -383,10 +383,11 @@ LRESULT CRemoteClientDlg::OnSendPackAck(WPARAM wParam, LPARAM lParam)
 		//对方关闭了套接字
 	}
 	else {
-		CPacket* pPacket = (CPacket*)wParam;
-		if (pPacket != NULL) {
-			CPacket& head = *pPacket;
-			switch (pPacket->sCmd){
+		
+		if (wParam != NULL) {
+			CPacket head = *(CPacket*)wParam;
+			delete (CPacket*)wParam;
+			switch (head.sCmd){
 			case 1://获取驱动信息
 			{
 				std::string drivers = head.strData;
@@ -463,8 +464,7 @@ LRESULT CRemoteClientDlg::OnSendPackAck(WPARAM wParam, LPARAM lParam)
 				TRACE("unknow data received! %d\r\n", head.sCmd);
 				break;
 			}
-
 		}
 	}
-	return LRESULT();
+	return 0;
 }

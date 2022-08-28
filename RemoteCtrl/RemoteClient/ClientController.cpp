@@ -57,7 +57,8 @@ bool CClientController::SendCommandPacket(
 	BYTE* pData, size_t nLength,WPARAM wParam)
 {
 	CClientSocket* pClient = CClientSocket::getInstance();
-	return pClient->SendPacket(hWnd, CPacket(nCmd, pData, nLength), bAutoClose, wParam);
+	bool ret = pClient->SendPacket(hWnd, CPacket(nCmd, pData, nLength), bAutoClose, wParam);
+	return ret;
 }
 
 void CClientController::DownloadEnd()
