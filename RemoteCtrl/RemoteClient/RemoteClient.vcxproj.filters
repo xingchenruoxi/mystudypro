@@ -48,9 +48,6 @@
     <ClInclude Include="Tool.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CQueue.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RemoteClient.cpp">
@@ -72,9 +69,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ClientController.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CQueue.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
