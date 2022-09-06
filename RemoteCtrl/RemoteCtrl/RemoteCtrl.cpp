@@ -127,11 +127,10 @@ void func(void* arg) {
 	
 }
 
-int main()
-{
-	if (!CTool::Init())return 1;
-
-	printf("press any key to exit...\r\n");
+void test() 
+{//性能：CQueue push性能高 pop性能仅1/4
+	//	list push性能比pop低
+	//printf("press any key to exit...\r\n");
 	CQueue<std::string> lstStrings;
 	ULONGLONG tick = GetTickCount64();
 	ULONGLONG tick0 = GetTickCount64();
@@ -151,7 +150,18 @@ int main()
 	printf("exit done!size %d\r\n", lstStrings.Size());
 	lstStrings.Clear();
 	printf("exit done!size %d\r\n", lstStrings.Size());
-	exit(0);
+}
+/*
+* 1 bug测试/功能测试
+* 2 关键因素的测试（内存泄漏，运行的稳定性，条件性）
+* 3 压力测试（可靠性测试）
+* 4 性能测试
+*/
+int main()
+{
+	if (!CTool::Init())return 1;
+	test();
+	
 
 
 	//if (CTool::IsAdmin()) {
