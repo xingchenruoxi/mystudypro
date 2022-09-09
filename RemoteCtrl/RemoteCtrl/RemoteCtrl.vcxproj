@@ -157,6 +157,8 @@
   <ItemGroup>
     <ClInclude Include="Command.h" />
     <ClInclude Include="CQueue.h" />
+    <ClInclude Include="CServer.h" />
+    <ClInclude Include="CThread.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LockDialog.h" />
     <ClInclude Include="Packet.h" />
@@ -169,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="CServer.cpp" />
     <ClCompile Include="LockDialog.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

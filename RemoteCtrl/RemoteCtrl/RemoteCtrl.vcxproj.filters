@@ -48,6 +48,12 @@
     <ClInclude Include="CQueue.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CThread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RemoteCtrl.cpp">
@@ -66,6 +72,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Command.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CServer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

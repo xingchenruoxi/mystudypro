@@ -1,6 +1,7 @@
 #pragma once
 #include"pch.h"
 #include<atomic>
+#include<list>
 
 template<class T>
 class CQueue
