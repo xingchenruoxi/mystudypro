@@ -54,6 +54,12 @@
     <ClInclude Include="CServer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="vld.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="vld_def.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RemoteCtrl.cpp">

@@ -52,7 +52,7 @@ void iocp();
 int main()
 {
 	if (!CTool::Init())return 1;
-	
+	iocp();
 
 
 	//if (CTool::IsAdmin()) {

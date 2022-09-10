@@ -23,8 +23,11 @@ public:
     std::vector<char> m_buffer;//缓冲区
     ThreadWorker m_worker;//处理函数
     CServer* m_server;//服务器对象
-    PCLIENT m_client;//对应的客户端
+    CClient* m_client;//对应的客户端
     WSABUF m_wsabuffer;
+    virtual ~CEOverlapped() {
+        m_buffer.clear();
+    }
 };
 
 template<EOperator>class AcceptOverlapped;
@@ -33,11 +36,16 @@ template<EOperator>class RecvOverlapped;
 typedef RecvOverlapped<ERecv> RECVOVERLAPPED;
 template<EOperator>class SendOverlapped;
 typedef SendOverlapped<ESend> SENDOVERLAPPED;
-class CClient {
+class CClient:public ThreadFuncBase {
 public:
     CClient();
     ~CClient() {
+        m_buffer.clear();
         closesocket(m_sock);
+        m_recv.reset();
+        m_send.reset();
+        m_overlapped.reset();
+        m_vecSend.Clear();
     }
 
     void SetOverlapped(PCLIENT& ptr);
@@ -57,13 +65,9 @@ public:
     sockaddr_in* GetLocalAddr() { return &m_laddr; }
     sockaddr_in* GetRemoteAddr() { return &m_raddr; }
     size_t GetBufferSize()const { return m_buffer.size(); }
-    int Recv() {
-        int ret = recv(m_sock, m_buffer.data(), m_buffer.size() - m_used, 0);
-        if (ret <= 0)return -1;
-        m_used += (size_t)ret;
-        //TODO:解析数据
-        return 0;
-    }
+    int Recv();
+    int Send(void* buffer, size_t nSize);
+    int SendData(std::vector<char>& data);
 private:
     SOCKET m_sock;
     DWORD m_recvived;
@@ -76,7 +80,7 @@ private:
     sockaddr_in m_laddr;
     sockaddr_in m_raddr;
     bool m_isbusy;
-    
+    CSendQueue<std::vector<char>> m_vecSend;//发送数据队列
 };
 
 template<EOperator>
@@ -85,7 +89,6 @@ class AcceptOverlapped :public CEOverlapped,ThreadFuncBase
 public:
     AcceptOverlapped();
     int AcceptWorker();
-    PCLIENT m_client;
 };
 
 
@@ -106,10 +109,11 @@ class SendOverlapped :public CEOverlapped, ThreadFuncBase
 {
 public:
     SendOverlapped();
-    int SendWorker() {
-        //TODO:
-        int ret = -1;
-        return ret;
+    int SendWorker(){
+        /*
+        * 1 Send可能不会立刻完成
+        */
+        return -1;
     }
 };
 typedef SendOverlapped<ESend> SENDOVERLAPPED;
@@ -130,9 +134,6 @@ public:
 };
 typedef ErrorOverlapped<EError> ERROROVERLAPPED;
 
-
-
-
 class CServer :
     public ThreadFuncBase
 {
@@ -144,7 +145,7 @@ public:
         m_addr.sin_port = htons(port);
         m_addr.sin_addr.s_addr = inet_addr(ip.c_str());
     }
-    ~CServer(){}
+    ~CServer();
     bool StartService();
     bool NewAccept() {
         PCLIENT pClient(new CClient());
