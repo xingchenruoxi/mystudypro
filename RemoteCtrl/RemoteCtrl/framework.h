@@ -9,6 +9,7 @@
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // 从 Windows 头文件中排除极少使用的内容
 #endif
+//https://kinddragon.github.io/vld/
 #include"vld.h"
 #include <afx.h>
 #include <afxwin.h>         // MFC 核心组件和标准组件

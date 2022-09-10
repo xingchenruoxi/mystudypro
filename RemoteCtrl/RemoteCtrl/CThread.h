@@ -11,7 +11,7 @@ class ThreadWorker {
 public:
 	ThreadWorker():thiz(NULL),func(NULL){}
 
-	ThreadWorker(ThreadFuncBase* obj,FUNCTYPE f):thiz(obj),func(f){}
+	ThreadWorker(void* obj,FUNCTYPE f):thiz((ThreadFuncBase*)obj),func(f){}
 
 	ThreadWorker(const ThreadWorker& worker) {
 		thiz = worker.thiz;
@@ -75,6 +75,7 @@ public:
 	void UpdateWorker(const ::ThreadWorker& worker = ::ThreadWorker()) {
 		if ((m_worker.load() != NULL) && (m_worker.load()!=&worker)) {
 			::ThreadWorker* pWorker = m_worker.load();
+			TRACE("delete pWorker = %08X m_worker = %08X\r\n", pWorker, m_worker.load());
 			m_worker.store(NULL);
 			delete pWorker;
 		}
@@ -83,8 +84,9 @@ public:
 			m_worker.store(NULL);
 			return;
 		}
-		
-		m_worker.store(new ::ThreadWorker(worker));
+		::ThreadWorker* pWorker = new ::ThreadWorker(worker);
+		TRACE("new pWorker = %08X m_worker = %08X\r\n", pWorker, m_worker.load());
+		m_worker.store(pWorker);
 	}
 
 	//true表示空闲 false表示已经分配了工作
@@ -110,7 +112,9 @@ private:
 						OutputDebugString(str);
 					}
 					if (ret < 0) {
+						::ThreadWorker* pWorker = m_worker.load();
 						m_worker.store(NULL);
+						delete pWorker;
 					}
 				}
 			}

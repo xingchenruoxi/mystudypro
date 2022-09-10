@@ -60,7 +60,9 @@ public:
         return &m_recvived;
     }
     LPWSABUF RecvWSABuffer();
+    LPWSAOVERLAPPED RecvOverlapped();
     LPWSABUF SendWSABuffer();
+    LPWSAOVERLAPPED SendOverlapped();
     DWORD& flags() { return m_flags; }
     sockaddr_in* GetLocalAddr() { return &m_laddr; }
     sockaddr_in* GetRemoteAddr() { return &m_raddr; }
@@ -147,26 +149,10 @@ public:
     }
     ~CServer();
     bool StartService();
-    bool NewAccept() {
-        PCLIENT pClient(new CClient());
-        pClient->SetOverlapped(pClient);
-        m_client.insert(std::pair<SOCKET, PCLIENT>(*pClient, pClient));
-        if (!AcceptEx(m_sock, *pClient, *pClient, 0, sizeof(sockaddr_in) + 16,
-            sizeof(sockaddr_in) + 16, *pClient, *pClient))
-        {
-            closesocket(m_sock);
-            m_sock = INVALID_SOCKET;
-            m_hIOCP = INVALID_HANDLE_VALUE;
-            return false;
-        }
-        return true;
-    }
+    bool NewAccept();
+    void BindNewSocket(SOCKET s);
 private:
-    void CreateSocket() {
-        m_sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-        int opt = 1;
-        setsockopt(m_sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
-    }
+    void CreateSocket();
     int threadIocp();
 private:
     CThreadPool m_pool;
