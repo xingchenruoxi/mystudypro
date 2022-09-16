@@ -60,6 +60,12 @@
     <ClInclude Include="vld_def.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ESocket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ENetwork.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RemoteCtrl.cpp">
@@ -81,6 +87,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ENetwork.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
